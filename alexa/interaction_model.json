@@ -4,6 +4,22 @@
             "invocationName": "blind controller",
             "intents": [
                 {
+                    "name": "AMAZON.StopIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.CancelIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.HelpIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.FallbackIntent",
+                    "samples": []
+                },
+                {
                     "name": "OpenBlindsIntent",
                     "slots": [
                         {
@@ -14,7 +30,10 @@
                     "samples": [
                         "open {room} blinds",
                         "open the blinds in the {room}",
-                        "open blinds in {room}"
+                        "open blinds in {room}",
+                        "open blinds in the {room}",
+                        "open the {room} blinds",
+                        "open blinds {room}"
                     ]
                 },
                 {
@@ -28,7 +47,10 @@
                     "samples": [
                         "close {room} blinds",
                         "close the blinds in the {room}",
-                        "close blinds in {room}"
+                        "close blinds in {room}",
+                        "close blinds in the {room}",
+                        "close the {room} blinds",
+                        "close blinds {room}"
                     ]
                 }
             ],
@@ -38,22 +60,26 @@
                     "values": [
                         {
                             "name": {
-                                "value": "living room"
+                                "value": "living room",
+                                "synonyms": ["living", "livingroom", "living-room"]
                             }
                         },
                         {
                             "name": {
-                                "value": "bedroom"
+                                "value": "bedroom",
+                                "synonyms": ["bed", "master bedroom", "master"]
                             }
                         },
                         {
                             "name": {
-                                "value": "kitchen"
+                                "value": "kitchen",
+                                "synonyms": ["kitchen area", "kitchen room"]
                             }
                         },
                         {
                             "name": {
-                                "value": "dining room"
+                                "value": "dining room",
+                                "synonyms": ["dining", "diningroom", "dining-room"]
                             }
                         }
                     ]

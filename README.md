@@ -105,11 +105,13 @@ The system consists of the following components:
 - Power supply for Raspberry Pi (5V/2.5A recommended)
 - Compatible window blinds with motor control
 - RF receiver module compatible with Raspberry Pi
-- Python 3.x
+- Python 3.9
 
 ## Installation
 
-1. Install the Alexa skill from the Amazon Skill Store
+1. Set up the Alexa skill:
+   - Follow the detailed instructions in `alexa/SKILL_SETUP.md`
+   - This will connect your skill to the existing AWS Lambda function
 2. Set up Raspberry Pi 3:
    - Install Raspberry Pi OS
    - Install required Python packages

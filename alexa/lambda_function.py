@@ -10,95 +10,107 @@ logger.setLevel(logging.INFO)
 # Raspberry Pi endpoint - replace with your actual endpoint
 RASPBERRY_PI_ENDPOINT = "http://your-raspberry-pi-ip:5000"
 
-def send_command_to_pi(command: str, room: str) -> bool:
+def create_response(output: str, should_end_session: bool = True) -> Dict[str, Any]:
     """
-    Send command to Raspberry Pi
+    Create a simplified Alexa response
     """
     try:
-        payload = {
-            "command": command,
-            "room": room
+        response = {
+            "version": "1.0",
+            "response": {
+                "outputSpeech": {
+                    "type": "PlainText",
+                    "text": output
+                },
+                "shouldEndSession": should_end_session
+            }
         }
-        response = requests.post(f"{RASPBERRY_PI_ENDPOINT}/control", json=payload)
-        return response.status_code == 200
+        logger.info(f"Created response: {json.dumps(response)}")
+        return response
     except Exception as e:
-        logger.error(f"Error sending command to Raspberry Pi: {str(e)}")
-        return False
-
-def handle_open_blinds(room: str) -> Dict[str, Any]:
-    """
-    Handle opening blinds command
-    """
-    success = send_command_to_pi("open", room)
-    if success:
+        logger.error(f"Error creating response: {str(e)}", exc_info=True)
+        # Return a minimal valid response in case of error
         return {
-            "output": f"Opening the {room} blinds",
-            "shouldEndSession": True
+            "version": "1.0",
+            "response": {
+                "outputSpeech": {
+                    "type": "PlainText",
+                    "text": "I encountered an error. Please try again."
+                },
+                "shouldEndSession": True
+            }
         }
-    return {
-        "output": f"Sorry, I couldn't open the {room} blinds",
-        "shouldEndSession": True
-    }
-
-def handle_close_blinds(room: str) -> Dict[str, Any]:
-    """
-    Handle closing blinds command
-    """
-    success = send_command_to_pi("close", room)
-    if success:
-        return {
-            "output": f"Closing the {room} blinds",
-            "shouldEndSession": True
-        }
-    return {
-        "output": f"Sorry, I couldn't close the {room} blinds",
-        "shouldEndSession": True
-    }
 
 def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     """
     Main Lambda handler for Alexa skill
     """
     try:
-        # Get the intent name from the request
-        intent_name = event['request']['intent']['name']
+        # Log the incoming event for debugging
+        logger.info("=== START OF LAMBDA HANDLER ===")
+        logger.info(f"Received event: {json.dumps(event)}")
         
-        # Get the room slot value
-        slots = event['request']['intent']['slots']
-        room = slots['room']['value'].lower() if 'room' in slots else "living room"
+        # Basic request validation
+        if not isinstance(event, dict):
+            logger.error("Event is not a dictionary")
+            return create_response("Invalid request format")
+            
+        if 'request' not in event:
+            logger.error("Missing 'request' field in event")
+            return create_response("Invalid request format")
+            
+        request = event['request']
+        if not isinstance(request, dict):
+            logger.error("Request is not a dictionary")
+            return create_response("Invalid request format")
+            
+        if 'type' not in request:
+            logger.error("Missing 'type' field in request")
+            return create_response("Invalid request type")
+            
+        request_type = request['type']
+        logger.info(f"Processing request type: {request_type}")
         
-        # Handle different intents
-        if intent_name == "OpenBlindsIntent":
-            response = handle_open_blinds(room)
-        elif intent_name == "CloseBlindsIntent":
-            response = handle_close_blinds(room)
-        else:
-            response = {
-                "output": "I'm not sure what you want me to do with the blinds",
-                "shouldEndSession": True
-            }
+        # Handle LaunchRequest
+        if request_type == 'LaunchRequest':
+            logger.info("Handling LaunchRequest")
+            return create_response("Welcome to Blind Controller. You can say open or close followed by a room name.", should_end_session=False)
+            
+        # Handle IntentRequest
+        if request_type == 'IntentRequest':
+            if 'intent' not in request:
+                logger.error("Missing 'intent' field in IntentRequest")
+                return create_response("Invalid intent request")
+                
+            intent = request['intent']
+            intent_name = intent.get('name', '')
+            logger.info(f"Processing intent: {intent_name}")
+            
+            # Handle standard Amazon intents
+            if intent_name == "AMAZON.HelpIntent":
+                return create_response("You can say open or close followed by a room name.", should_end_session=False)
+            elif intent_name == "AMAZON.StopIntent":
+                return create_response("Stopping blind operation")
+            elif intent_name == "AMAZON.CancelIntent":
+                return create_response("Cancelling blind operation")
+            elif intent_name == "AMAZON.FallbackIntent":
+                return create_response("I'm not sure what you want me to do. Try saying help.", should_end_session=False)
+            
+            # Handle custom intents
+            if intent_name == "OpenBlindsIntent":
+                return create_response("Opening the blinds")
+            elif intent_name == "CloseBlindsIntent":
+                return create_response("Closing the blinds")
+            else:
+                logger.error(f"Unsupported intent: {intent_name}")
+                return create_response("I'm not sure what you want me to do. Try saying help.", should_end_session=False)
         
-        # Construct the response
-        return {
-            "version": "1.0",
-            "response": {
-                "outputSpeech": {
-                    "type": "PlainText",
-                    "text": response["output"]
-                },
-                "shouldEndSession": response["shouldEndSession"]
-            }
-        }
+        # If we get here, the request type is not supported
+        logger.error(f"Unsupported request type: {request_type}")
+        return create_response("I'm not sure what you want me to do. Try saying help.", should_end_session=False)
         
     except Exception as e:
-        logger.error(f"Error in lambda_handler: {str(e)}")
-        return {
-            "version": "1.0",
-            "response": {
-                "outputSpeech": {
-                    "type": "PlainText",
-                    "text": "Sorry, I encountered an error while processing your request"
-                },
-                "shouldEndSession": True
-            }
-        } 
+        logger.error(f"Error in lambda_handler: {str(e)}", exc_info=True)
+        return create_response("I encountered an error. Please try again.")
+    finally:
+        logger.info("=== END OF LAMBDA HANDLER ===") 
