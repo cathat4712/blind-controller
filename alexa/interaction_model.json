@@ -1,0 +1,64 @@
+{
+    "interactionModel": {
+        "languageModel": {
+            "invocationName": "blind controller",
+            "intents": [
+                {
+                    "name": "OpenBlindsIntent",
+                    "slots": [
+                        {
+                            "name": "room",
+                            "type": "ROOM_TYPE"
+                        }
+                    ],
+                    "samples": [
+                        "open {room} blinds",
+                        "open the blinds in the {room}",
+                        "open blinds in {room}"
+                    ]
+                },
+                {
+                    "name": "CloseBlindsIntent",
+                    "slots": [
+                        {
+                            "name": "room",
+                            "type": "ROOM_TYPE"
+                        }
+                    ],
+                    "samples": [
+                        "close {room} blinds",
+                        "close the blinds in the {room}",
+                        "close blinds in {room}"
+                    ]
+                }
+            ],
+            "types": [
+                {
+                    "name": "ROOM_TYPE",
+                    "values": [
+                        {
+                            "name": {
+                                "value": "living room"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "bedroom"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "kitchen"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "dining room"
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+} 

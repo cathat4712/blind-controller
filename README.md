@@ -8,6 +8,17 @@ This project provides a comprehensive solution for automating window blind contr
 - Voice control through Amazon Alexa
 - Physical remote controller for manual operation
 
+## Project Structure
+
+```
+blind-controller/
+├── README.md
+└── alexa/
+    ├── lambda_function.py      # AWS Lambda function for Alexa skill
+    ├── interaction_model.json  # Alexa skill interaction model
+    └── requirements.txt        # Python dependencies for Lambda function
+```
+
 ## Architecture
 
 The system consists of the following components:
@@ -16,6 +27,9 @@ The system consists of the following components:
    - Custom voice commands for blind control
    - Integration with AWS Lambda for command processing
    - Secure authentication and authorization
+   - Supports commands:
+     - "Alexa, tell blind controller to open living room blinds"
+     - "Alexa, tell blind controller to close living room blinds"
 
 2. **Physical Remote Controller**
    - RF-based communication
